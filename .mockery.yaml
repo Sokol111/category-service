@@ -1,0 +1,8 @@
+packages:
+  github.com/Sokol111/category-service/internal/core/ports:
+    interfaces:
+      CategoryRepository:
+        config:
+          dir: mocks
+          testonly: true
+          with-expecter: true
