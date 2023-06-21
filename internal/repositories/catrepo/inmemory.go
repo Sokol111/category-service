@@ -12,7 +12,7 @@ import (
 
 type memrepo struct {
 	categories map[string]domain.Category
-	lock       sync.Mutex
+	mu         sync.RWMutex
 }
 
 func NewCategoryRepository() ports.CategoryRepository {
@@ -20,6 +20,8 @@ func NewCategoryRepository() ports.CategoryRepository {
 }
 
 func (r *memrepo) GetById(id string) (domain.Category, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	if category, ok := r.categories[id]; ok {
 		return category, nil
 	}
@@ -27,6 +29,8 @@ func (r *memrepo) GetById(id string) (domain.Category, error) {
 }
 
 func (r *memrepo) GetByName(name string) (domain.Category, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	for _, v := range r.categories {
 		if v.Name == name {
 			return v, nil
@@ -40,15 +44,15 @@ func (r *memrepo) Create(category domain.Category) (domain.Category, error) {
 	category.Version = 1
 	category.CreatedDate = time.Now().UTC()
 	category.LastModifiedDate = category.CreatedDate
-	r.lock.Lock()
+	r.mu.Lock()
 	r.categories[category.ID] = category
-	r.lock.Unlock()
+	r.mu.Unlock()
 	return category, nil
 }
 
 func (r *memrepo) Update(category domain.Category) (domain.Category, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	if found, ok := r.categories[category.ID]; ok {
 		if found.Version != category.Version {
 			return domain.Category{}, errors.New("failed to update category because of different versions")
@@ -64,8 +68,8 @@ func (r *memrepo) Update(category domain.Category) (domain.Category, error) {
 }
 
 func (r *memrepo) GetCategories() ([]domain.Category, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	s := make([]domain.Category, 0, len(r.categories))
 	for _, v := range r.categories {
 		s = append(s, v)
