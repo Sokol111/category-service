@@ -1,0 +1,35 @@
+package config
+
+import (
+	"github.com/spf13/viper"
+	"log"
+)
+
+type Config struct {
+	Grpc Grpc `mapstructure:"grpc"`
+}
+
+type Grpc struct {
+	Server Server `mapstructure:"server"`
+}
+
+type Server struct {
+	Port int `mapstructure:"port"`
+}
+
+func LoadConfig(path string) Config {
+	viper.AddConfigPath(path)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal("Failed to load config: ", err)
+	}
+	var c Config
+	err = viper.Unmarshal(&c)
+	if err != nil {
+		log.Fatal("Failed to unmarshal config: ", err)
+	}
+	return c
+}
