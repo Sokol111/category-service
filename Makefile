@@ -10,5 +10,14 @@ test: generate-mocks
 build-server: test
 	go build -o category-service ./cmd
 
+build-docker-image: test
+	docker build -t sokol111/category-service:latest .
+
+docker-compose-up:
+	docker compose up -d
+
+docker-compose-down:
+	docker compose down
+
 run-server: build-server
 	./category-service
