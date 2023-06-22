@@ -1,8 +1,9 @@
 packages:
-  github.com/Sokol111/category-service/internal/core/ports:
+  github.com/Sokol111/category-service/internal/service:
     interfaces:
       CategoryRepository:
         config:
           dir: mocks
+          outpkg: mocks
           testonly: true
           with-expecter: true

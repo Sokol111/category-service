@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Sokol111/category-service/internal/model"
+	"github.com/Sokol111/category-service/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"

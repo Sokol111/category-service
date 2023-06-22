@@ -25,13 +25,19 @@ func (r *CatMemrepo) GetById(id string) (model.Category, error) {
 	return model.Category{}, fmt.Errorf("failed to find category by id [%v]\n", id)
 }
 
-func (r *CatMemrepo) GetByName(name string) (model.Category, error) {
-	for _, v := range r.categories {
-		if v.Name == name {
-			return v, nil
+func (r *CatMemrepo) GetByName(name string) (found model.Category, err error) {
+	r.categories.Range(func(_ any, c any) bool {
+		category := c.(model.Category)
+		if category.Name == name {
+			found = category
+			return false
 		}
+		return true
+	})
+	if found.ID == "" {
+		err = fmt.Errorf("failed to find category by name [%v]\n", name)
 	}
-	return model.Category{}, fmt.Errorf("failed to find category by name [%v]\n", name)
+	return found, err
 }
 
 func (r *CatMemrepo) Create(category model.Category) (model.Category, error) {
@@ -39,30 +45,31 @@ func (r *CatMemrepo) Create(category model.Category) (model.Category, error) {
 	category.Version = 1
 	category.CreatedDate = time.Now().UTC()
 	category.LastModifiedDate = category.CreatedDate
-	r.categories[category.ID] = category
-
+	r.categories.Store(category.ID, category)
 	return category, nil
 }
 
-func (r *CatMemrepo) Update(category model.Category) (model.Category, error) {
-	if found, ok := r.categories[category.ID]; ok {
+func (r *CatMemrepo) Update(category model.Category) (found model.Category, err error) {
+	if c, ok := r.categories.Load(category.ID); ok {
+		found = c.(model.Category)
 		if found.Version != category.Version {
 			return model.Category{}, errors.New("failed to update category because of different versions")
 		}
 		found.Version++
 		found.Name = category.Name
 		found.LastModifiedDate = time.Now().UTC()
-		r.categories[found.ID] = found
+		r.categories.Store(found.ID, found)
 	} else {
-		return model.Category{}, fmt.Errorf("failed to update category because couldn't find it by id [%v]\n", category.ID)
+		err = fmt.Errorf("failed to update category because couldn't find it by id [%v]\n", category.ID)
 	}
-	return category, nil
+	return found, err
 }
 
-func (r *CatMemrepo) GetCategories() ([]model.Category, error) {
-	s := make([]model.Category, 0, len(r.categories))
-	for _, v := range r.categories {
-		s = append(s, v)
-	}
-	return s, nil
+func (r *CatMemrepo) GetCategories() (s []model.Category, err error) {
+	r.categories.Range(func(_ any, c any) bool {
+		s = append(s, c.(model.Category))
+		return true
+	})
+
+	return s, err
 }
