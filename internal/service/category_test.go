@@ -1,8 +1,7 @@
-package categorysrv
+package service
 
 import (
-	"github.com/Sokol111/category-service/internal/core/domain"
-	mocks "github.com/Sokol111/category-service/mocks"
+	"github.com/Sokol111/category-service/internal/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,7 +10,7 @@ import (
 
 func TestCategoryService_GetById(t *testing.T) {
 	repository := mocks.NewMockCategoryRepository(t)
-	service := NewCategoryService(repository)
+	service := NewCatService(repository)
 	expected := randomCategory()
 	repository.
 		EXPECT().
@@ -22,8 +21,8 @@ func TestCategoryService_GetById(t *testing.T) {
 	assert.Equal(t, expected, found)
 }
 
-func randomCategory() domain.Category {
-	return domain.Category{
+func randomCategory() model.Category {
+	return model.Category{
 		ID:               uuid.NewString(),
 		Version:          1,
 		Enabled:          true,

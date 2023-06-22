@@ -8,21 +8,21 @@ import (
 	"strconv"
 )
 
-type Server struct {
+type GrpcServer struct {
 	grpcServer *grpc.Server
 	port       int
 }
 
-func NewServer(port int, c proto.CategoryServiceServer) *Server {
+func NewGrpcServer(port int, c proto.CategoryServiceServer) *GrpcServer {
 	s := grpc.NewServer()
 	proto.RegisterCategoryServiceServer(s, c)
-	return &Server{
+	return &GrpcServer{
 		grpcServer: s,
 		port:       port,
 	}
 }
 
-func (s *Server) Start() {
+func (s *GrpcServer) Start() {
 	ln, err := net.Listen("tcp", ":"+strconv.Itoa(s.port))
 	if err != nil {
 		log.Fatal("failed to listen: ", err)

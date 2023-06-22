@@ -1,4 +1,4 @@
-package config
+package server
 
 import (
 	"github.com/spf13/viper"
@@ -10,10 +10,10 @@ type Config struct {
 }
 
 type Grpc struct {
-	Server Server `mapstructure:"server"`
+	Server Srv `mapstructure:"server"`
 }
 
-type Server struct {
+type Srv struct {
 	Port int `mapstructure:"port"`
 }
 

@@ -1,10 +1,10 @@
-package cathandler
+package api
 
 import (
 	"context"
 	"fmt"
-	"github.com/Sokol111/category-service/internal/core/domain"
-	"github.com/Sokol111/category-service/internal/core/ports"
+	"github.com/Sokol111/category-service/internal/model"
+	"github.com/Sokol111/category-service/internal/service"
 	"github.com/Sokol111/category-service/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,17 +12,17 @@ import (
 	"log"
 )
 
-type handler struct {
+type CatHandler struct {
 	proto.UnimplementedCategoryServiceServer
-	categoryService ports.CategoryService
+	categoryService service.CategoryService
 }
 
-func NewCategoryServiceServer(s ports.CategoryService) proto.CategoryServiceServer {
-	return &handler{categoryService: s}
+func NewCategoryHandler(s service.CategoryService) *CatHandler {
+	return &CatHandler{categoryService: s}
 }
 
-func (h *handler) CreateCategory(_ context.Context, in *proto.CreateCategoryRequest) (*proto.CategoryResponse, error) {
-	created, err := h.categoryService.Create(domain.Category{
+func (h *CatHandler) CreateCategory(_ context.Context, in *proto.CreateCategoryRequest) (*proto.CategoryResponse, error) {
+	created, err := h.categoryService.Create(model.Category{
 		Name:    in.Name,
 		Enabled: in.Enabled,
 	})
@@ -41,7 +41,7 @@ func (h *handler) CreateCategory(_ context.Context, in *proto.CreateCategoryRequ
 	}, nil
 }
 
-func (h *handler) GetCategoryById(_ context.Context, in *proto.GetCategoryByIdRequest) (*proto.CategoryResponse, error) {
+func (h *CatHandler) GetCategoryById(_ context.Context, in *proto.GetCategoryByIdRequest) (*proto.CategoryResponse, error) {
 	category, err := h.categoryService.GetById(in.Id)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (h *handler) GetCategoryById(_ context.Context, in *proto.GetCategoryByIdRe
 	}, nil
 }
 
-func (h *handler) GetCategoryByName(_ context.Context, in *proto.GetCategoryByNameRequest) (*proto.CategoryResponse, error) {
+func (h *CatHandler) GetCategoryByName(_ context.Context, in *proto.GetCategoryByNameRequest) (*proto.CategoryResponse, error) {
 	category, err := h.categoryService.GetByName(in.Name)
 
 	if err != nil {
@@ -77,8 +77,8 @@ func (h *handler) GetCategoryByName(_ context.Context, in *proto.GetCategoryByNa
 	}, nil
 }
 
-func (h *handler) UpdateCategory(_ context.Context, in *proto.UpdateCategoryRequest) (*proto.CategoryResponse, error) {
-	updated, err := h.categoryService.Update(domain.Category{
+func (h *CatHandler) UpdateCategory(_ context.Context, in *proto.UpdateCategoryRequest) (*proto.CategoryResponse, error) {
+	updated, err := h.categoryService.Update(model.Category{
 		ID:      in.Id,
 		Version: in.Version,
 		Name:    in.Name,
@@ -99,7 +99,7 @@ func (h *handler) UpdateCategory(_ context.Context, in *proto.UpdateCategoryRequ
 	}, nil
 }
 
-func (h *handler) GetCategories(_ context.Context, _ *emptypb.Empty) (*proto.CategoryListResponse, error) {
+func (h *CatHandler) GetCategories(_ context.Context, _ *emptypb.Empty) (*proto.CategoryListResponse, error) {
 	categories, err := h.categoryService.GetCategories()
 
 	if err != nil {
