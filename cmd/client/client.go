@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("192.168.49.2:30000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("did not connect: ", err)
 	}
@@ -20,10 +20,14 @@ func main() {
 	}()
 	client := proto.NewCategoryServiceClient(conn)
 
-	category, _ := client.CreateCategory(context.Background(), &proto.CreateCategoryRequest{Name: "Category 1"})
+	category, err := client.CreateCategory(context.Background(), &proto.CreateCategoryRequest{Name: "Category 1"})
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Category: %v", category)
 	category, err = client.UpdateCategory(context.Background(), &proto.UpdateCategoryRequest{Name: "Category 2", Id: category.Id, Version: 0})
 	if err != nil {
-		log.Printf("%v\n", err)
+		log.Fatal(err)
 	}
+	log.Printf("Category: %v", category)
 }

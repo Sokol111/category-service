@@ -21,3 +21,24 @@ docker-compose-down:
 
 run-server: build-server
 	./category-service
+
+push-image-to-dockerhub:
+	docker push sokol111/category-service:latest
+
+kubectl-apply:
+	kubectl apply -f ./.k8s/config.yml
+	kubectl get all -o wide
+	minikube service category-service-node-port-service --url
+
+kubectl-get-all:
+	kubectl get all -o wide
+
+kubectl-delete:
+	kubectl delete -f ./.k8s/config.yml
+	kubectl get deployments
+
+kubectl-get-pods:
+	kubectl get pods
+
+kubectl-show-logs:
+	kubectl logs -f -l app=category-service-label --all-containers --prefix=true --timestamps=true
